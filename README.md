@@ -24,6 +24,15 @@ The library demonstrates modern C++ best practices including RAII ownership, pol
 
 The following diagram illustrates the complete system topology. The **Star** sits at the core as the metadata controller, branching out to three polymorphic planet types through a factory-based creation pipeline. All operations are dispatched polymorphically via `BasePlanet<T>`.
 
+<p align="center">
+  <img src="assets/architecture_diagram.png" alt="SolarSystem Architecture Diagram" width="720" />
+  <br />
+  <em>High-level architecture of the SolarSystem library.</em>
+</p>
+
+<details>
+<summary><strong>Interactive Architecture Diagram (Mermaid)</strong></summary>
+
 ```mermaid
 graph TB
     subgraph Controller["SolarSystem&lt;T&gt; — Orchestrator"]
@@ -69,6 +78,8 @@ graph TB
     class PF factoryStyle
     class O1,O2,O3,O4 opsStyle
 ```
+
+</details>
 
 ### Complexity Analysis
 
@@ -193,6 +204,7 @@ The SolarSystem architecture maps directly to a real-world data center. Each abs
 ```
 SolarSystem/
 ├── assets/
+│   ├── architecture_diagram.png   # High-level system architecture
 │   ├── star_core.png              # Star controller visualization
 │   ├── vector_ring.png            # VectorPlanet visualization
 │   ├── stack_silo.png             # StackPlanet visualization

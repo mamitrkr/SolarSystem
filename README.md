@@ -1,49 +1,58 @@
 # SolarSystem — Polymorphic Data Structure Manager
 
-![Build Status](https://img.shields.io/github/actions/workflow/status/mamitrkr/SolarSystem/cpp-ci.yml?branch=main&style=flat-square&logo=github&label=Build)
-![License](https://img.shields.io/badge/License-MIT-blue?style=flat-square)
-![C++](https://img.shields.io/badge/C%2B%2B-17-00599C?style=flat-square&logo=cplusplus)
+<p align="center">
+  <a href="https://github.com/mamitrkr/SolarSystem/actions/workflows/cpp-ci.yml">
+    <img src="https://img.shields.io/github/actions/workflow/status/mamitrkr/SolarSystem/cpp-ci.yml?branch=main&style=for-the-badge&logo=github&label=Build" alt="Build Status" />
+  </a>
+  &nbsp;
+  <img src="https://img.shields.io/badge/License-MIT-blue?style=for-the-badge" alt="License" />
+  &nbsp;
+  <img src="https://img.shields.io/badge/C%2B%2B-17-00599C?style=for-the-badge&logo=cplusplus" alt="C++ 17" />
+</p>
+
+---
 
 ## Overview
 
 **SolarSystem** is a professional C++ data structure library that manages heterogeneous collections through a unified polymorphic interface. Using a Solar System metaphor, each "planet" represents a distinct data structure (Vector, Stack, or Queue), all governed by a central `SolarSystem<T>` controller.
 
-<p align="center">
-  <img src="assets/architecture_diagram.png" alt="SolarSystem Architecture Diagram" width="720" />
-  <br />
-  <em>High-level architecture of the SolarSystem library.</em>
-</p>
+The library demonstrates modern C++ best practices including RAII ownership, polymorphic dispatch, factory-based creation, template generics, const-correctness, move semantics, and structured exception handling.
 
-<details>
-<summary><strong>Interactive Architecture Diagram (Mermaid)</strong></summary>
+---
+
+## Architecture
+
+The following diagram illustrates the complete system topology. The **Star** sits at the core as the metadata controller, branching out to three polymorphic planet types through a factory-based creation pipeline. All operations are dispatched polymorphically via `BasePlanet<T>`.
 
 ```mermaid
 graph TB
-    subgraph SolarSystem["SolarSystem&lt;T&gt; — Polymorphic Data Structure Manager"]
+    subgraph Controller["SolarSystem&lt;T&gt; — Orchestrator"]
         direction TB
-        Star["⭐ Star · Control Plane\n─────────────────\nplanet_count : int\nelement_count : int\nid : int"]
-
-        subgraph Planets["Planets — vector&lt;unique_ptr&lt;BasePlanet&lt;T&gt;&gt;&gt;"]
-            direction LR
-            VP["🔵 VectorPlanet&lt;T&gt;\nstd::vector&lt;T&gt; · Random Access\nO·1 push / O·1 pop"]
-            SP["🟢 StackPlanet&lt;T&gt;\nstd::stack&lt;T&gt; · LIFO Order\nO·1 push / O·1 pop"]
-            QP["🟠 QueuePlanet&lt;T&gt;\nstd::queue&lt;T&gt; · FIFO Order\nO·1 push / O·1 pop"]
-        end
-
-        Factory["🏭 PlanetFactory&lt;T&gt;\nFactory Design Pattern\ncreate·PlanetType → unique_ptr"]
+        Star["⭐ Star · Control Plane\n─────────────────────\nplanet_count : int\nelement_count : int\nid : int"]
     end
 
-    subgraph Operations["Core Operations"]
+    subgraph Factory["PlanetFactory&lt;T&gt; · Factory Pattern"]
+        PF["🏭 create(PlanetType)\n→ unique_ptr&lt;BasePlanet&lt;T&gt;&gt;"]
+    end
+
+    subgraph Planets["vector&lt;unique_ptr&lt;BasePlanet&lt;T&gt;&gt;&gt;"]
         direction LR
-        Push["pushToPlanet · O·1"]
-        BH["removePlanet · Black Hole O·n"]
-        GP["gravityPull · Bulk Filter O·n×m"]
-        SN["resetSystem · Supernova O·p"]
+        VP["🔵 VectorPlanet&lt;T&gt;\nstd::vector&lt;T&gt;\nRandom Access\nO(1) push · O(1) pop"]
+        SP["🟢 StackPlanet&lt;T&gt;\nstd::stack&lt;T&gt;\nLIFO Order\nO(1) push · O(1) pop"]
+        QP["🟠 QueuePlanet&lt;T&gt;\nstd::queue&lt;T&gt;\nFIFO Order\nO(1) push · O(1) pop"]
     end
 
-    Star -->|"tracks counters"| Planets
-    Factory -->|"creates via make_unique"| Planets
-    Operations -->|"dispatched polymorphically"| Planets
+    subgraph Ops["Core Operations"]
+        direction LR
+        O1["pushToPlanet · O(1)"]
+        O2["removePlanet · O(n)"]
+        O3["gravityPull · O(n×m)"]
+        O4["resetSystem · O(p)"]
+    end
+
+    Star -->|"owns & tracks"| Planets
+    PF -->|"make_unique + std::move"| Planets
+    Ops -->|"polymorphic dispatch"| Planets
 
     classDef starStyle fill:#FFF3B0,stroke:#E6A800,stroke-width:2px,color:#333
     classDef vectorStyle fill:#DBEAFE,stroke:#3B82F6,stroke-width:2px,color:#333
@@ -51,36 +60,94 @@ graph TB
     classDef queueStyle fill:#FFEDD5,stroke:#F97316,stroke-width:2px,color:#333
     classDef factoryStyle fill:#EDE9FE,stroke:#8B5CF6,stroke-width:2px,color:#333
     classDef opsStyle fill:#F3F4F6,stroke:#6B7280,stroke-width:1px,color:#333
+    classDef ctrlStyle fill:#FEF9C3,stroke:#CA8A04,stroke-width:2px,color:#333
 
     class Star starStyle
     class VP vectorStyle
     class SP stackStyle
     class QP queueStyle
-    class Factory factoryStyle
-    class Push,BH,GP,SN opsStyle
+    class PF factoryStyle
+    class O1,O2,O3,O4 opsStyle
 ```
 
-</details>
+### Complexity Analysis
 
-The library demonstrates modern C++ best practices including RAII ownership, polymorphic dispatch, factory-based creation, template generics, const-correctness, move semantics, and structured exception handling.
+| Operation | Method | Time | Space |
+|-----------|--------|:----:|:-----:|
+| Add planet | `addPlanet()` | $O(1)$ amortized | $O(1)$ |
+| Push element | `pushToPlanet()` | $O(1)$ amortized | $O(1)$ |
+| Pop element | `deleteElement()` | $O(1)$ | $O(1)$ |
+| Remove planet (Black Hole) | `removePlanet()` | $O(n)$ | $O(1)$ |
+| Reset system (Supernova) | `resetSystem()` | $O(p)$ | $O(1)$ |
+| **Gravity pull** | **`gravityPull()`** | $O(n \times m)$ | $O(m)$ |
+| Display all | `travelPlanet()` | $O(p \times m)$ | $O(m)$ |
+| Element count | `getElementCount()` | $O(1)$ | $O(1)$ |
+| Planet count | `getPlanetCount()` | $O(1)$ | $O(1)$ |
+| Validate count | `getActualElementCount()` | $O(p)$ | $O(1)$ |
+
+> Where $p$ = number of planets, $n$ = total elements across the system, and $m$ = maximum elements in a single planet.
 
 ---
 
 ## System Components
 
-The solar system is composed of a central **Star** controller and three polymorphic **Planet** types, each backed by a different STL container.
+### Star — Central Controller
 
 <p align="center">
-  <img src="assets/star_core.png" alt="Star Core — Central Controller" width="280" />
+  <img src="assets/star_core.png" alt="Star Core — Central Controller" width="300" />
   <br />
-  <em>Star — The central controller that tracks all system-wide metrics.</em>
+  <em>The Star struct maintains <code>planet_count</code> and <code>element_count</code> for O(1) system-wide queries.</em>
 </p>
 
-| Component | Image | Data Structure | Access Pattern | Push | Pop |
-|---|:-:|---|---|:-:|:-:|
-| **VectorPlanet** | <img src="assets/vector_ring.png" alt="VectorPlanet" width="100" /> | `std::vector<T>` | Random access, dynamic array | $O(1)$ amortized | $O(1)$ |
-| **StackPlanet** | <img src="assets/stack_silo.png" alt="StackPlanet" width="100" /> | `std::stack<T>` | LIFO — last in, first out | $O(1)$ | $O(1)$ |
-| **QueuePlanet** | <img src="assets/queue_belt.png" alt="QueuePlanet" width="100" /> | `std::queue<T>` | FIFO — first in, first out | $O(1)$ | $O(1)$ |
+The `Star` is an internal struct within `SolarSystem<T>` that acts as the control plane. It tracks three counters — `id`, `planet_count`, and `element_count` — enabling $O(1)$ metadata access without iterating any container.
+
+### VectorPlanet — Random-Access Storage
+
+<p align="center">
+  <img src="assets/vector_ring.png" alt="VectorPlanet — Dynamic Array" width="300" />
+  <br />
+  <em>VectorPlanet stores elements in a contiguous <code>std::vector&lt;T&gt;</code> with O(1) amortized insertion.</em>
+</p>
+
+| Property | Value |
+|----------|-------|
+| Backing container | `std::vector<T>` |
+| Access pattern | Random access by index |
+| Push complexity | $O(1)$ amortized |
+| Pop complexity | $O(1)$ (back removal) |
+| Gravity Pull filter | In-place via `std::remove_if` + `erase` — $O(n)$, zero auxiliary allocation |
+
+### StackPlanet — LIFO Storage
+
+<p align="center">
+  <img src="assets/stack_silo.png" alt="StackPlanet — LIFO Silo" width="300" />
+  <br />
+  <em>StackPlanet enforces Last-In-First-Out ordering via <code>std::stack&lt;T&gt;</code>.</em>
+</p>
+
+| Property | Value |
+|----------|-------|
+| Backing container | `std::stack<T>` |
+| Access pattern | LIFO — top element only |
+| Push complexity | $O(1)$ |
+| Pop complexity | $O(1)$ |
+| Gravity Pull filter | Drain-and-rebuild — $O(n)$ with $O(n)$ auxiliary space |
+
+### QueuePlanet — FIFO Storage
+
+<p align="center">
+  <img src="assets/queue_belt.png" alt="QueuePlanet — FIFO Belt" width="300" />
+  <br />
+  <em>QueuePlanet enforces First-In-First-Out ordering via <code>std::queue&lt;T&gt;</code>.</em>
+</p>
+
+| Property | Value |
+|----------|-------|
+| Backing container | `std::queue<T>` |
+| Access pattern | FIFO — front element only |
+| Push complexity | $O(1)$ |
+| Pop complexity | $O(1)$ |
+| Gravity Pull filter | Drain-and-rebuild — $O(n)$ with $O(n)$ auxiliary space |
 
 ### Component Responsibilities
 
@@ -126,7 +193,6 @@ The SolarSystem architecture maps directly to a real-world data center. Each abs
 ```
 SolarSystem/
 ├── assets/
-│   ├── architecture_diagram.png   # High-level system architecture
 │   ├── star_core.png              # Star controller visualization
 │   ├── vector_ring.png            # VectorPlanet visualization
 │   ├── stack_silo.png             # StackPlanet visualization
@@ -149,24 +215,7 @@ SolarSystem/
 
 ---
 
-## Complexity Analysis
-
-| Operation | Method | Time Complexity | Space Complexity |
-|-----------|--------|:-:|:-:|
-| Add planet | `addPlanet()` | $O(1)$ amortized | $O(1)$ |
-| Push element | `pushToPlanet()` | $O(1)$ amortized | $O(1)$ |
-| Pop element | `deleteElement()` | $O(1)$ | $O(1)$ |
-| Remove planet (Black Hole) | `removePlanet()` | $O(n)$ | $O(1)$ |
-| Reset system (Supernova) | `resetSystem()` | $O(p)$ | $O(1)$ |
-| Gravity pull | `gravityPull()` | $O(n \times m)$ | $O(m)$ |
-| Display all | `travelPlanet()` | $O(p \times m)$ | $O(m)$ |
-| Element count | `getElementCount()` | $O(1)$ | $O(1)$ |
-| Planet count | `getPlanetCount()` | $O(1)$ | $O(1)$ |
-| Validate count | `getActualElementCount()` | $O(p)$ | $O(1)$ |
-
-> Where $p$ = number of planets, $n$ = total elements across the system, and $m$ = maximum elements in a single planet.
-
-### Gravity Pull — Detailed Analysis
+## Gravity Pull — Detailed Analysis
 
 The `gravityPull(threshold)` operation performs a bulk filter across every planet, removing all elements whose value falls below the threshold. Its cost is $O(n \times m)$ because it must iterate through all $p$ planets and scan up to $m$ elements within each:
 

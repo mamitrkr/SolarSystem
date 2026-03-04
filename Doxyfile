@@ -1,0 +1,74 @@
+# ─────────────────────────────────────────────────────────────────────────────
+#  Doxyfile — SolarSystem Data Structure
+#  Generated for professional API documentation (Erasmus application).
+# ─────────────────────────────────────────────────────────────────────────────
+
+# ── Project Metadata ────────────────────────────────────────────────────────
+PROJECT_NAME           = "SolarSystem Data Structure"
+PROJECT_NUMBER         = 1.0.0
+PROJECT_BRIEF          = "A polymorphic data structure manager using Solar System metaphors"
+PROJECT_LOGO           =
+OUTPUT_DIRECTORY       = docs
+
+# ── Build Configuration ─────────────────────────────────────────────────────
+EXTRACT_ALL            = YES
+EXTRACT_PRIVATE        = YES
+EXTRACT_STATIC         = YES
+EXTRACT_LOCAL_CLASSES  = YES
+RECURSIVE              = YES
+GENERATE_TODOLIST      = YES
+GENERATE_BUGLIST       = YES
+
+# ── Input Sources ───────────────────────────────────────────────────────────
+INPUT                  = include/ src/
+FILE_PATTERNS          = *.hpp *.cpp *.h
+EXCLUDE_PATTERNS       = */build/* */tests/*
+
+# ── Source Browsing ─────────────────────────────────────────────────────────
+SOURCE_BROWSER         = YES
+INLINE_SOURCES         = NO
+STRIP_CODE_COMMENTS    = NO
+REFERENCED_BY_RELATION = YES
+REFERENCES_RELATION    = YES
+
+# ── Output Formats ──────────────────────────────────────────────────────────
+GENERATE_HTML          = YES
+HTML_OUTPUT            = html
+HTML_COLORSTYLE        = LIGHT
+HTML_TIMESTAMP         = YES
+GENERATE_TREEVIEW      = YES
+DISABLE_INDEX          = NO
+FULL_SIDEBAR           = NO
+GENERATE_LATEX         = NO
+GENERATE_XML           = NO
+GENERATE_MAN           = NO
+
+# ── Diagrams ────────────────────────────────────────────────────────────────
+HAVE_DOT               = NO
+CLASS_DIAGRAMS         = YES
+COLLABORATION_GRAPH    = NO
+INCLUDE_GRAPH          = NO
+INCLUDED_BY_GRAPH      = NO
+
+# ── Preprocessing ───────────────────────────────────────────────────────────
+ENABLE_PREPROCESSING   = YES
+MACRO_EXPANSION        = NO
+SEARCH_INCLUDES        = YES
+INCLUDE_PATH           = include/
+
+# ── Warnings ────────────────────────────────────────────────────────────────
+WARNINGS               = YES
+WARN_IF_UNDOCUMENTED   = YES
+WARN_IF_DOC_ERROR      = YES
+WARN_NO_PARAMDOC       = YES
+WARN_FORMAT            = "$file:$line: $text"
+
+# ── Misc ────────────────────────────────────────────────────────────────────
+QUIET                  = NO
+JAVADOC_AUTOBRIEF      = YES
+TAB_SIZE               = 4
+MARKDOWN_SUPPORT       = YES
+AUTOLINK_SUPPORT       = YES
+SORT_MEMBER_DOCS       = YES
+SORT_BRIEF_DOCS        = YES
+SHOW_NAMESPACES        = YES

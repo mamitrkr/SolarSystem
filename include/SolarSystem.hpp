@@ -1,6 +1,20 @@
 #ifndef SOLARSYSTEM_HPP
 #define SOLARSYSTEM_HPP
 
+/**
+ * @file SolarSystem.hpp
+ * @brief Template-based solar system orchestrator managing polymorphic planets.
+ *
+ * Provides the SolarSystem<T> class that owns a collection of BasePlanet<T>
+ * instances through std::unique_ptr. All memory management is handled
+ * automatically via RAII. Supports planet creation, element insertion,
+ * gravity-pull filtering, and full system reset.
+ *
+ * @author mamitrkr
+ * @version 1.0.0
+ * @date 2026
+ */
+
 #include "Planet.hpp"
 
 /**
@@ -42,7 +56,7 @@ public:
 
   /**
    * @brief Displays the total element count in the system to stdout.
-   * @complexity O(1) — Direct access to counter variable.
+   * @note Complexity: O(1) — direct access to counter variable.
    */
   void elementCount() const {
     cout << " Element count :" << star.element_count << endl;
@@ -50,7 +64,7 @@ public:
 
   /**
    * @brief Displays the total planet count in the system to stdout.
-   * @complexity O(1) — Direct access to counter variable.
+   * @note Complexity: O(1) — direct access to counter variable.
    */
   void planetCount() const {
     cout << " Planet count :" << star.planet_count << endl;
@@ -62,14 +76,14 @@ public:
    * Used in unit tests to assert consistency with getActualElementCount().
    *
    * @return The star.element_count value.
-   * @complexity O(1)
+   * @note Complexity: O(1).
    */
   int getElementCount() const { return star.element_count; }
 
   /**
    * @brief Returns the tracked planet count from the Star controller.
    * @return The star.planet_count value.
-   * @complexity O(1)
+   * @note Complexity: O(1).
    */
   int getPlanetCount() const { return star.planet_count; }
 
@@ -80,7 +94,7 @@ public:
    * should always equal getElementCount() — any discrepancy indicates a bug.
    *
    * @return Sum of elements across all planets.
-   * @complexity O(p) where p = number of planets.
+   * @note Complexity: O(p) where p is the number of planets.
    */
   int getActualElementCount() const {
     int total = 0;
@@ -101,7 +115,7 @@ public:
    * @param index Zero-based index of the target planet.
    * @param value The value to insert (passed by const reference).
    * @throws std::out_of_range If index is out of bounds.
-   * @complexity O(1) amortized — polymorphic dispatch to the correct push().
+   * @note Complexity: O(1) amortized — polymorphic dispatch to the correct push().
    */
   void pushToPlanet(int index, const T &value) {
     if (index < 0 || index >= (int)planets.size())
@@ -119,7 +133,7 @@ public:
    * Ownership is transferred to the system via move semantics.
    *
    * @throws std::invalid_argument If the user enters an unrecognized type.
-   * @complexity O(1) amortized.
+   * @note Complexity: O(1) amortized.
    */
   void addPlanet() {
     char input;
@@ -140,7 +154,7 @@ public:
    * @param type The PlanetType enum specifying which derived class to create.
    * @throws std::invalid_argument If the PlanetType is not recognized by the
    * factory.
-   * @complexity O(1) amortized.
+   * @note Complexity: O(1) amortized.
    */
   void addPlanet(PlanetType type) {
     unique_ptr<BasePlanet<T>> p = PlanetFactory<T>::create(type);
@@ -165,7 +179,7 @@ public:
    *
    * @param planetIndex Zero-based index of the planet to destroy.
    * @throws std::out_of_range If planetIndex is out of bounds.
-   * @complexity O(p) where p = number of planets (due to vector::erase shift).
+   * @note Complexity: O(p) where p is the number of planets (vector::erase shift).
    */
   void removePlanet(int planetIndex) {
     if (planetIndex < 0 || planetIndex >= (int)planets.size())
@@ -188,7 +202,7 @@ public:
    * @brief Alias for removePlanet (backward compatibility).
    * @param planetIndex Zero-based index of the planet to destroy.
    * @throws std::out_of_range If planetIndex is out of bounds.
-   * @complexity O(p) where p = number of planets.
+   * @note Complexity: O(p) where p is the number of planets.
    */
   void blackHole(int planetIndex) { removePlanet(planetIndex); }
 
@@ -201,7 +215,7 @@ public:
    * destructors. After this call, zero heap memory remains allocated for
    * any planet or element. All Star counters are reset to zero.
    *
-   * @complexity O(p) where p = number of planets (each destructor runs).
+   * @note Complexity: O(p) where p is the number of planets (each destructor runs).
    */
   void resetSystem() {
     planets.clear(); // RAII: all unique_ptrs destroyed, all memory freed
@@ -212,7 +226,7 @@ public:
 
   /**
    * @brief Alias for resetSystem (backward compatibility).
-   * @complexity O(p) where p = number of planets.
+   * @note Complexity: O(p) where p is the number of planets.
    */
   void supernova() { resetSystem(); }
 
@@ -223,7 +237,7 @@ public:
    * Each planet's removeBelow() is called polymorphically.
    *
    * @param threshold Elements with value < threshold are removed.
-   * @complexity O(p * m) where p = planets, m = elements per planet.
+   * @note Complexity: O(p * m) where p is the number of planets and m is the elements per planet.
    */
   void gravityPull(const T &threshold) {
     cout << "GRAVITY PULL: Absorbing elements < " << threshold << endl;
@@ -244,7 +258,7 @@ public:
    * @param index Zero-based index of the target planet.
    * @throws std::out_of_range If index is out of bounds.
    * @throws std::underflow_error If the target planet is empty.
-   * @complexity O(1) — polymorphic dispatch to the correct pop().
+   * @note Complexity: O(1) — polymorphic dispatch to the correct pop().
    */
   void deleteElement(int index) {
     if (index < 0 || index >= (int)planets.size())
@@ -263,7 +277,7 @@ public:
    *
    * Const-correct: does not modify any state.
    *
-   * @complexity O(p * m) where p = number of planets, m = elements per planet.
+   * @note Complexity: O(p * m) where p is the number of planets and m is the elements per planet.
    */
   void travelPlanet() const {
     for (size_t i = 0; i < planets.size(); i++) {

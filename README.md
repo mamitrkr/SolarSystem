@@ -5,6 +5,10 @@
     <img src="https://img.shields.io/github/actions/workflow/status/mamitrkr/SolarSystem/cpp-ci.yml?branch=main&style=for-the-badge&logo=github&label=Build" alt="Build Status" />
   </a>
   &nbsp;
+  <a href="https://mamitrkr.github.io/SolarSystem/">
+    <img src="https://img.shields.io/badge/Docs-Doxygen-2C4AA8?style=for-the-badge&logo=readthedocs&logoColor=white" alt="API Docs" />
+  </a>
+  &nbsp;
   <img src="https://img.shields.io/badge/License-MIT-blue?style=for-the-badge" alt="License" />
   &nbsp;
   <img src="https://img.shields.io/badge/C%2B%2B-17-00599C?style=for-the-badge&logo=cplusplus" alt="C++ 17" />
@@ -222,6 +226,7 @@ SolarSystem/
 │   └── workflows/
 │       └── cpp-ci.yml             # CI pipeline (build + test on push)
 ├── CMakeLists.txt                 # CMake build configuration
+├── Doxyfile                       # Doxygen configuration for API docs
 └── README.md
 ```
 
@@ -367,6 +372,44 @@ The project includes 22 unit tests covering:
 - **gravityPull** — Threshold filtering across all planet types, boundary values.
 - **resetSystem (Supernova)** — Full system destruction and RAII verification.
 - **Element Count Validation** — After every operation, `star.element_count` is verified against the actual sum of all planet elements.
+
+---
+
+## API Documentation (Doxygen)
+
+Full API documentation is auto-generated with [Doxygen](https://www.doxygen.nl/) and deployed to GitHub Pages on every push to `main`.
+
+**Live URL:** [https://mamitrkr.github.io/SolarSystem/](https://mamitrkr.github.io/SolarSystem/)
+
+### Generate Locally
+
+```bash
+# Install Doxygen (Ubuntu/Debian)
+sudo apt-get install doxygen
+
+# Generate HTML documentation
+doxygen Doxyfile
+
+# Open in browser
+open docs/html/index.html    # macOS
+xdg-open docs/html/index.html  # Linux
+start docs/html/index.html     # Windows
+```
+
+### Deployment Strategy (GitHub Pages)
+
+The CI pipeline (`.github/workflows/cpp-ci.yml`) handles deployment automatically. To enable it:
+
+1. **Enable GitHub Pages** — Go to your repository **Settings → Pages**.
+2. **Source** — Select **GitHub Actions** as the deployment source.
+3. **Push to `main`** — The `docs` job in the workflow will:
+   - Install Doxygen on the CI runner.
+   - Run `doxygen Doxyfile` to generate `docs/html/`.
+   - Upload the HTML output as a Pages artifact.
+   - Deploy it to `https://mamitrkr.github.io/SolarSystem/`.
+4. **Add to CV** — Use the live URL as a portfolio link in your Erasmus application.
+
+> **Note:** The first deployment may take 1–2 minutes. Subsequent pushes update the site automatically.
 
 ---
 

@@ -1,6 +1,20 @@
 #ifndef PLANET_HPP
 #define PLANET_HPP
 
+/**
+ * @file Planet.hpp
+ * @brief Polymorphic planet hierarchy and factory for the SolarSystem library.
+ *
+ * Defines the abstract BasePlanet<T> interface, three concrete implementations
+ * (VectorPlanet, StackPlanet, QueuePlanet), and the PlanetFactory<T> class.
+ * Each planet wraps a different STL container while exposing a uniform API
+ * through virtual dispatch.
+ *
+ * @author mamitrkr
+ * @version 1.0.0
+ * @date 2026
+ */
+
 #include <algorithm>
 #include <iostream>
 #include <memory>
@@ -28,7 +42,7 @@ enum class PlanetType { Vector, Stack, Queue };
  * @param input The character to parse ('V'/'v', 'S'/'s', 'Q'/'q').
  * @return The corresponding PlanetType enum value.
  * @throws std::invalid_argument If the input character is not recognized.
- * @complexity O(1)
+ * @note Complexity: O(1).
  */
 inline PlanetType parsePlanetType(char input) {
   switch (input) {
@@ -61,48 +75,51 @@ public:
   string name;      ///< Planet name, managed by std::string (RAII).
   int metadata = 0; ///< Planet identifier/index.
 
-  /// Virtual destructor ensures safe polymorphic deletion (RAII).
+  /**
+   * @brief Virtual destructor ensuring safe polymorphic deletion.
+   * @note Invoked automatically by std::unique_ptr when a planet is destroyed.
+   */
   virtual ~BasePlanet() = default;
 
   /**
    * @brief Inserts a value into the planet's data structure.
    * @param value The value to insert (passed by const reference to avoid
    * copies).
-   * @complexity O(1) amortized
+   * @note Complexity: O(1) amortized.
    */
   virtual void push(const T &value) = 0;
 
   /**
    * @brief Removes an element from the planet's data structure.
    * @throws std::underflow_error If the data structure is empty.
-   * @complexity O(1)
+   * @note Complexity: O(1).
    */
   virtual void pop() = 0;
 
   /**
    * @brief Returns the number of elements in the planet.
    * @return Element count.
-   * @complexity O(1)
+   * @note Complexity: O(1).
    */
   virtual int size() const = 0;
 
   /**
    * @brief Checks whether the planet's data structure is empty.
    * @return True if empty, false otherwise.
-   * @complexity O(1)
+   * @note Complexity: O(1).
    */
   virtual bool empty() const = 0;
 
   /**
    * @brief Displays all elements in the planet to stdout.
-   * @complexity O(n) where n = number of elements
+   * @note Complexity: O(n) where n is the number of elements.
    */
   virtual void display() const = 0;
 
   /**
    * @brief Returns the human-readable type name of the planet.
    * @return Type name string (e.g., "Vector", "Stack", "Queue").
-   * @complexity O(1)
+   * @note Complexity: O(1).
    */
   virtual string typeName() const = 0;
 
@@ -111,7 +128,7 @@ public:
    * @param threshold Elements with value < threshold are removed.
    * @param removedCount Reference incremented by the number of removed
    * elements.
-   * @complexity O(n) where n = number of elements
+   * @note Complexity: O(n) where n is the number of elements.
    */
   virtual void removeBelow(const T &threshold, int &removedCount) = 0;
 };
@@ -131,14 +148,14 @@ public:
   /**
    * @brief Appends a value to the end of the vector.
    * @param value The value to insert.
-   * @complexity O(1) amortized
+   * @note Complexity: O(1) amortized.
    */
   void push(const T &value) override { v.push_back(value); }
 
   /**
    * @brief Removes the last element from the vector.
    * @throws std::underflow_error If the vector is empty.
-   * @complexity O(1)
+   * @note Complexity: O(1).
    */
   void pop() override {
     if (v.empty())
@@ -146,18 +163,30 @@ public:
     v.pop_back();
   }
 
-  /// @brief Returns element count. @complexity O(1)
+  /**
+   * @brief Returns the number of elements in the vector.
+   * @return Current element count.
+   * @note Complexity: O(1).
+   */
   int size() const override { return v.size(); }
 
-  /// @brief Checks if empty. @complexity O(1)
+  /**
+   * @brief Checks whether the vector is empty.
+   * @return True if the vector contains no elements, false otherwise.
+   * @note Complexity: O(1).
+   */
   bool empty() const override { return v.empty(); }
 
-  /// @brief Returns "Vector". @complexity O(1)
+  /**
+   * @brief Returns the type identifier string.
+   * @return The string literal "Vector".
+   * @note Complexity: O(1).
+   */
   string typeName() const override { return "Vector"; }
 
   /**
    * @brief Displays all vector elements to stdout.
-   * @complexity O(n) where n = number of elements
+   * @note Complexity: O(n) where n is the number of elements.
    */
   void display() const override {
     cout << "(" << this->typeName() << ") : ";
@@ -176,7 +205,7 @@ public:
    *
    * @param threshold Elements with value < threshold are removed.
    * @param removedCount Reference incremented by number of removed elements.
-   * @complexity O(n) where n = number of elements
+   * @note Complexity: O(n) where n is the number of elements.
    */
   void removeBelow(const T &threshold, int &removedCount) override {
     int beforeSize = static_cast<int>(v.size());
@@ -202,14 +231,14 @@ public:
   /**
    * @brief Pushes a value onto the top of the stack.
    * @param value The value to insert.
-   * @complexity O(1)
+   * @note Complexity: O(1).
    */
   void push(const T &value) override { s.push(value); }
 
   /**
    * @brief Removes the top element from the stack (LIFO).
    * @throws std::underflow_error If the stack is empty.
-   * @complexity O(1)
+   * @note Complexity: O(1).
    */
   void pop() override {
     if (s.empty())
@@ -217,18 +246,30 @@ public:
     s.pop();
   }
 
-  /// @brief Returns element count. @complexity O(1)
+  /**
+   * @brief Returns the number of elements in the stack.
+   * @return Current element count.
+   * @note Complexity: O(1).
+   */
   int size() const override { return s.size(); }
 
-  /// @brief Checks if empty. @complexity O(1)
+  /**
+   * @brief Checks whether the stack is empty.
+   * @return True if the stack contains no elements, false otherwise.
+   * @note Complexity: O(1).
+   */
   bool empty() const override { return s.empty(); }
 
-  /// @brief Returns "Stack". @complexity O(1)
+  /**
+   * @brief Returns the type identifier string.
+   * @return The string literal "Stack".
+   * @note Complexity: O(1).
+   */
   string typeName() const override { return "Stack"; }
 
   /**
    * @brief Displays all stack elements to stdout (top to bottom).
-   * @complexity O(n) where n = number of elements
+   * @note Complexity: O(n) where n is the number of elements.
    */
   void display() const override {
     cout << "(" << this->typeName() << ") : ";
@@ -246,7 +287,7 @@ public:
    * @brief Removes all elements below threshold from the stack.
    * @param threshold Elements with value < threshold are removed.
    * @param removedCount Reference incremented by number of removed elements.
-   * @complexity O(n) where n = number of elements
+   * @note Complexity: O(n) where n is the number of elements.
    */
   void removeBelow(const T &threshold, int &removedCount) override {
     int beforeSize = static_cast<int>(s.size());
@@ -285,14 +326,14 @@ public:
   /**
    * @brief Enqueues a value at the back of the queue.
    * @param value The value to insert.
-   * @complexity O(1)
+   * @note Complexity: O(1).
    */
   void push(const T &value) override { q.push(value); }
 
   /**
    * @brief Dequeues the front element from the queue (FIFO).
    * @throws std::underflow_error If the queue is empty.
-   * @complexity O(1)
+   * @note Complexity: O(1).
    */
   void pop() override {
     if (q.empty())
@@ -300,18 +341,30 @@ public:
     q.pop();
   }
 
-  /// @brief Returns element count. @complexity O(1)
+  /**
+   * @brief Returns the number of elements in the queue.
+   * @return Current element count.
+   * @note Complexity: O(1).
+   */
   int size() const override { return q.size(); }
 
-  /// @brief Checks if empty. @complexity O(1)
+  /**
+   * @brief Checks whether the queue is empty.
+   * @return True if the queue contains no elements, false otherwise.
+   * @note Complexity: O(1).
+   */
   bool empty() const override { return q.empty(); }
 
-  /// @brief Returns "Queue". @complexity O(1)
+  /**
+   * @brief Returns the type identifier string.
+   * @return The string literal "Queue".
+   * @note Complexity: O(1).
+   */
   string typeName() const override { return "Queue"; }
 
   /**
    * @brief Displays all queue elements to stdout (front to back).
-   * @complexity O(n) where n = number of elements
+   * @note Complexity: O(n) where n is the number of elements.
    */
   void display() const override {
     cout << "(" << this->typeName() << ") : ";
@@ -329,7 +382,7 @@ public:
    * @brief Removes all elements below threshold from the queue.
    * @param threshold Elements with value < threshold are removed.
    * @param removedCount Reference incremented by number of removed elements.
-   * @complexity O(n) where n = number of elements
+   * @note Complexity: O(n) where n is the number of elements.
    */
   void removeBelow(const T &threshold, int &removedCount) override {
     int beforeSize = static_cast<int>(q.size());
@@ -367,7 +420,7 @@ public:
    * instantiate.
    * @return A unique_ptr<BasePlanet<T>> owning the newly created planet.
    * @throws std::invalid_argument If the PlanetType is not recognized.
-   * @complexity O(1)
+   * @note Complexity: O(1).
    */
   static unique_ptr<BasePlanet<T>> create(PlanetType type) {
     switch (type) {

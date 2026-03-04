@@ -3,6 +3,9 @@ build/
 out/
 cmake-build-*/
 
+# Doxygen output
+docs/
+
 # IDE / Editor files
 .vscode/
 .idea/

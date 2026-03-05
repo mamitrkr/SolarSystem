@@ -296,17 +296,17 @@ public:
 
     // Reverse into temp to preserve original insertion order
     while (!s.empty()) {
-      temp.push(move(s.top()));
+      temp.push(std::move(s.top()));
       s.pop();
     }
     // Filter: keep only elements >= threshold
     while (!temp.empty()) {
-      T value = move(temp.top());
+      T value = std::move(temp.top());
       temp.pop();
       if (value >= threshold)
-        survivors.push(move(value));
+        survivors.push(std::move(value));
     }
-    s = move(survivors);
+    s = std::move(survivors);
     removedCount += beforeSize - static_cast<int>(s.size());
   }
 };
@@ -390,12 +390,12 @@ public:
 
     // Drain queue, keeping only elements >= threshold
     while (!q.empty()) {
-      T value = move(q.front());
+      T value = std::move(q.front());
       q.pop();
       if (value >= threshold)
-        survivors.push(move(value));
+        survivors.push(std::move(value));
     }
-    q = move(survivors);
+    q = std::move(survivors);
     removedCount += beforeSize - static_cast<int>(q.size());
   }
 };

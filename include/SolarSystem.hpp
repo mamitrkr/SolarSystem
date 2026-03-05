@@ -164,7 +164,7 @@ public:
 
     cout << "Planet Id: " << p->metadata << " (" << p->name << ")" << endl;
 
-    planets.push_back(move(p)); // Move semantics: transfers ownership
+    planets.push_back(std::move(p)); // Move semantics: transfers ownership
     star.planet_count++;
     star.id = star.planet_count - 1;
   }

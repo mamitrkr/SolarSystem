@@ -24,9 +24,9 @@
  * All operations are public, const-correct methods providing a controlled
  * interface. No global state — instances are created locally where needed.
  *
- * RAII Guarantee: All planets are owned via unique_ptr. When a planet is
+ * RAII Guarantee: All planets are owned via std::unique_ptr. When a planet is
  * removed (blackHole/removePlanet) or the entire system is reset
- * (supernova/resetSystem), unique_ptr destructors automatically deallocate all
+ * (supernova/resetSystem), std::unique_ptr destructors automatically deallocate all
  * associated memory. No manual delete is ever required.
  *
  * Template class implementations are defined inline in this header file,
@@ -46,8 +46,8 @@ private:
   };
 
   Star star; ///< System-wide state counters.
-  vector<unique_ptr<BasePlanet<T>>>
-      planets; ///< Polymorphic ownership via unique_ptr (RAII).
+  std::vector<std::unique_ptr<BasePlanet<T>>>
+      planets; ///< Polymorphic ownership via std::unique_ptr (RAII).
 
 public:
   // ─────────────────────────────────────────────
@@ -59,7 +59,7 @@ public:
    * @note Complexity: O(1) — direct access to counter variable.
    */
   void elementCount() const {
-    cout << " Element count :" << star.element_count << endl;
+    std::cout << " Element count :" << star.element_count << std::endl;
   }
 
   /**
@@ -67,7 +67,7 @@ public:
    * @note Complexity: O(1) — direct access to counter variable.
    */
   void planetCount() const {
-    cout << " Planet count :" << star.planet_count << endl;
+    std::cout << " Planet count :" << star.planet_count << std::endl;
   }
 
   /**
@@ -119,7 +119,7 @@ public:
    */
   void pushToPlanet(int index, const T &value) {
     if (index < 0 || index >= (int)planets.size())
-      throw out_of_range("Planet index " + to_string(index) +
+      throw std::out_of_range("Planet index " + std::to_string(index) +
                          " is out of range");
     planets[index]->push(value);
     star.element_count++;
@@ -137,9 +137,9 @@ public:
    */
   void addPlanet() {
     char input;
-    cout << "Enter the type of Planet" << endl
+    std::cout << "Enter the type of Planet" << std::endl
          << "V For Vector- S For Stack- Q For Queue : ";
-    cin >> input;
+    std::cin >> input;
 
     PlanetType type = parsePlanetType(input);
     addPlanet(type);
@@ -157,14 +157,14 @@ public:
    * @note Complexity: O(1) amortized.
    */
   void addPlanet(PlanetType type) {
-    unique_ptr<BasePlanet<T>> p = PlanetFactory<T>::create(type);
+    std::unique_ptr<BasePlanet<T>> p = PlanetFactory<T>::create(type);
 
     p->name = p->typeName() + "_Planet";
-    p->metadata = planets.size();
+    p->metadata = static_cast<int>(planets.size());
 
-    cout << "Planet Id: " << p->metadata << " (" << p->name << ")" << endl;
+    std::cout << "Planet Id: " << p->metadata << " (" << p->name << ")" << std::endl;
 
-    planets.push_back(move(p)); // Move semantics: transfers ownership
+    planets.push_back(std::move(p)); // Move semantics: transfers ownership
     star.planet_count++;
     star.id = star.planet_count - 1;
   }
@@ -172,7 +172,7 @@ public:
   /**
    * @brief Destroys a single planet and reclaims all its memory (Black Hole).
    *
-   * RAII Guarantee: When the unique_ptr is erased from the vector, the
+   * RAII Guarantee: When the std::unique_ptr is erased from the vector, the
    * derived planet object (and all its internal data) is automatically
    * deallocated. No manual delete is required. Zero memory remains allocated
    * for the destroyed planet after this call.
@@ -183,14 +183,14 @@ public:
    */
   void removePlanet(int planetIndex) {
     if (planetIndex < 0 || planetIndex >= (int)planets.size())
-      throw out_of_range("Planet index " + to_string(planetIndex) +
+      throw std::out_of_range("Planet index " + std::to_string(planetIndex) +
                          " is out of range");
 
     BasePlanet<T> &p = *planets[planetIndex];
     int elementsLost = p.size();
 
-    cout << "BLACK HOLE: Planet [" << p.name << "] absorbed! " << elementsLost
-         << " elements lost." << endl;
+    std::cout << "BLACK HOLE: Planet [" << p.name << "] absorbed! " << elementsLost
+         << " elements lost." << std::endl;
 
     // unique_ptr automatically deletes the derived object when erased
     planets.erase(planets.begin() + planetIndex);
@@ -209,8 +209,8 @@ public:
   /**
    * @brief Destroys the entire solar system and resets all state (Supernova).
    *
-   * RAII Guarantee: planets.clear() destroys every unique_ptr in the vector.
-   * Each unique_ptr destructor deletes its owned BasePlanet-derived object,
+   * RAII Guarantee: planets.clear() destroys every std::unique_ptr in the vector.
+   * Each std::unique_ptr destructor deletes its owned BasePlanet-derived object,
    * which in turn destroys the internal vector/stack/queue via their own
    * destructors. After this call, zero heap memory remains allocated for
    * any planet or element. All Star counters are reset to zero.
@@ -240,14 +240,14 @@ public:
    * @note Complexity: O(p * m) where p is the number of planets and m is the elements per planet.
    */
   void gravityPull(const T &threshold) {
-    cout << "GRAVITY PULL: Absorbing elements < " << threshold << endl;
+    std::cout << "GRAVITY PULL: Absorbing elements < " << threshold << std::endl;
     int totalPulled = 0;
 
     for (size_t i = 0; i < planets.size(); i++)
       planets[i]->removeBelow(threshold, totalPulled);
 
     star.element_count -= totalPulled;
-    cout << totalPulled << " elements absorbed by gravity." << endl;
+    std::cout << totalPulled << " elements absorbed by gravity." << std::endl;
   }
 
   /**
@@ -262,7 +262,7 @@ public:
    */
   void deleteElement(int index) {
     if (index < 0 || index >= (int)planets.size())
-      throw out_of_range("Planet index " + to_string(index) +
+      throw std::out_of_range("Planet index " + std::to_string(index) +
                          " is out of range");
     planets[index]->pop();
     star.element_count--;
@@ -282,7 +282,7 @@ public:
   void travelPlanet() const {
     for (size_t i = 0; i < planets.size(); i++) {
       BasePlanet<T> &p = *planets[i];
-      cout << i + 1 << ". Planet [" << p.name << "] (ID: " << p.metadata
+      std::cout << i + 1 << ". Planet [" << p.name << "] (ID: " << p.metadata
            << ") Elements ";
       p.display();
     }

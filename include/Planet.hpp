@@ -24,8 +24,6 @@
 #include <string>
 #include <vector>
 
-using namespace std;
-
 /**
  * @brief Strict enumeration for planet data structure types.
  *
@@ -56,8 +54,8 @@ inline PlanetType parsePlanetType(char input) {
   case 'q':
     return PlanetType::Queue;
   default:
-    throw invalid_argument(string("Invalid planet type: '") + input +
-                           "'. Use V, S, or Q.");
+    throw std::invalid_argument(std::string("Invalid planet type: '") + input +
+                                "'. Use V, S, or Q.");
   }
 }
 
@@ -72,7 +70,7 @@ inline PlanetType parsePlanetType(char input) {
  */
 template <typename T> class BasePlanet {
 public:
-  string name;      ///< Planet name, managed by std::string (RAII).
+  std::string name; ///< Planet name, managed by std::string (RAII).
   int metadata = 0; ///< Planet identifier/index.
 
   /**
@@ -121,7 +119,7 @@ public:
    * @return Type name string (e.g., "Vector", "Stack", "Queue").
    * @note Complexity: O(1).
    */
-  virtual string typeName() const = 0;
+  virtual std::string typeName() const = 0;
 
   /**
    * @brief Removes all elements below the given threshold.
@@ -143,7 +141,7 @@ public:
  */
 template <typename T> class VectorPlanet : public BasePlanet<T> {
 public:
-  vector<T> v; ///< Internal vector storage.
+  std::vector<T> v; ///< Internal vector storage.
 
   /**
    * @brief Appends a value to the end of the vector.
@@ -159,7 +157,7 @@ public:
    */
   void pop() override {
     if (v.empty())
-      throw underflow_error("Cannot pop from empty Vector planet");
+      throw std::underflow_error("Cannot pop from empty Vector planet");
     v.pop_back();
   }
 
@@ -168,7 +166,7 @@ public:
    * @return Current element count.
    * @note Complexity: O(1).
    */
-  int size() const override { return v.size(); }
+  int size() const override { return static_cast<int>(v.size()); }
 
   /**
    * @brief Checks whether the vector is empty.
@@ -182,19 +180,19 @@ public:
    * @return The string literal "Vector".
    * @note Complexity: O(1).
    */
-  string typeName() const override { return "Vector"; }
+  std::string typeName() const override { return "Vector"; }
 
   /**
    * @brief Displays all vector elements to stdout.
    * @note Complexity: O(n) where n is the number of elements.
    */
   void display() const override {
-    cout << "(" << this->typeName() << ") : ";
+    std::cout << "(" << this->typeName() << ") : ";
     if (v.empty())
-      cout << "EMPTY";
+      std::cout << "EMPTY";
     for (size_t i = 0; i < v.size(); i++)
-      cout << v[i] << " ";
-    cout << endl;
+      std::cout << v[i] << " ";
+    std::cout << std::endl;
   }
 
   /**
@@ -209,8 +207,8 @@ public:
    */
   void removeBelow(const T &threshold, int &removedCount) override {
     int beforeSize = static_cast<int>(v.size());
-    v.erase(remove_if(v.begin(), v.end(),
-                       [&threshold](const T &val) { return val < threshold; }),
+    v.erase(std::remove_if(v.begin(), v.end(),
+                           [&threshold](const T &val) { return val < threshold; }),
             v.end());
     removedCount += beforeSize - static_cast<int>(v.size());
   }
@@ -226,7 +224,7 @@ public:
  */
 template <typename T> class StackPlanet : public BasePlanet<T> {
 public:
-  stack<T> s; ///< Internal stack storage.
+  std::stack<T> s; ///< Internal stack storage.
 
   /**
    * @brief Pushes a value onto the top of the stack.
@@ -242,7 +240,7 @@ public:
    */
   void pop() override {
     if (s.empty())
-      throw underflow_error("Cannot pop from empty Stack planet");
+      throw std::underflow_error("Cannot pop from empty Stack planet");
     s.pop();
   }
 
@@ -251,7 +249,7 @@ public:
    * @return Current element count.
    * @note Complexity: O(1).
    */
-  int size() const override { return s.size(); }
+  int size() const override { return static_cast<int>(s.size()); }
 
   /**
    * @brief Checks whether the stack is empty.
@@ -265,22 +263,22 @@ public:
    * @return The string literal "Stack".
    * @note Complexity: O(1).
    */
-  string typeName() const override { return "Stack"; }
+  std::string typeName() const override { return "Stack"; }
 
   /**
    * @brief Displays all stack elements to stdout (top to bottom).
    * @note Complexity: O(n) where n is the number of elements.
    */
   void display() const override {
-    cout << "(" << this->typeName() << ") : ";
-    stack<T> temp = s; // Copy to preserve original
+    std::cout << "(" << this->typeName() << ") : ";
+    std::stack<T> temp = s; // Copy to preserve original
     if (temp.empty())
-      cout << "EMPTY";
+      std::cout << "EMPTY";
     while (!temp.empty()) {
-      cout << temp.top() << " ";
+      std::cout << temp.top() << " ";
       temp.pop();
     }
-    cout << endl;
+    std::cout << std::endl;
   }
 
   /**
@@ -291,22 +289,22 @@ public:
    */
   void removeBelow(const T &threshold, int &removedCount) override {
     int beforeSize = static_cast<int>(s.size());
-    stack<T> survivors;
-    stack<T> temp;
+    std::stack<T> survivors;
+    std::stack<T> temp;
 
     // Reverse into temp to preserve original insertion order
     while (!s.empty()) {
-      temp.push(move(s.top()));
+      temp.push(std::move(s.top()));
       s.pop();
     }
     // Filter: keep only elements >= threshold
     while (!temp.empty()) {
-      T value = move(temp.top());
+      T value = std::move(temp.top());
       temp.pop();
       if (value >= threshold)
-        survivors.push(move(value));
+        survivors.push(std::move(value));
     }
-    s = move(survivors);
+    s = std::move(survivors);
     removedCount += beforeSize - static_cast<int>(s.size());
   }
 };
@@ -321,7 +319,7 @@ public:
  */
 template <typename T> class QueuePlanet : public BasePlanet<T> {
 public:
-  queue<T> q; ///< Internal queue storage.
+  std::queue<T> q; ///< Internal queue storage.
 
   /**
    * @brief Enqueues a value at the back of the queue.
@@ -337,7 +335,7 @@ public:
    */
   void pop() override {
     if (q.empty())
-      throw underflow_error("Cannot pop from empty Queue planet");
+      throw std::underflow_error("Cannot pop from empty Queue planet");
     q.pop();
   }
 
@@ -346,7 +344,7 @@ public:
    * @return Current element count.
    * @note Complexity: O(1).
    */
-  int size() const override { return q.size(); }
+  int size() const override { return static_cast<int>(q.size()); }
 
   /**
    * @brief Checks whether the queue is empty.
@@ -360,22 +358,22 @@ public:
    * @return The string literal "Queue".
    * @note Complexity: O(1).
    */
-  string typeName() const override { return "Queue"; }
+  std::string typeName() const override { return "Queue"; }
 
   /**
    * @brief Displays all queue elements to stdout (front to back).
    * @note Complexity: O(n) where n is the number of elements.
    */
   void display() const override {
-    cout << "(" << this->typeName() << ") : ";
-    queue<T> temp = q; // Copy to preserve original
+    std::cout << "(" << this->typeName() << ") : ";
+    std::queue<T> temp = q; // Copy to preserve original
     if (temp.empty())
-      cout << "EMPTY";
+      std::cout << "EMPTY";
     while (!temp.empty()) {
-      cout << temp.front() << " ";
+      std::cout << temp.front() << " ";
       temp.pop();
     }
-    cout << endl;
+    std::cout << std::endl;
   }
 
   /**
@@ -386,16 +384,16 @@ public:
    */
   void removeBelow(const T &threshold, int &removedCount) override {
     int beforeSize = static_cast<int>(q.size());
-    queue<T> survivors;
+    std::queue<T> survivors;
 
     // Drain queue, keeping only elements >= threshold
     while (!q.empty()) {
-      T value = move(q.front());
+      T value = std::move(q.front());
       q.pop();
       if (value >= threshold)
-        survivors.push(move(value));
+        survivors.push(std::move(value));
     }
-    q = move(survivors);
+    q = std::move(survivors);
     removedCount += beforeSize - static_cast<int>(q.size());
   }
 };
@@ -418,36 +416,36 @@ public:
    *
    * @param type The PlanetType enum specifying which derived class to
    * instantiate.
-   * @return A unique_ptr<BasePlanet<T>> owning the newly created planet.
+   * @return A std::unique_ptr<BasePlanet<T>> owning the newly created planet.
    * @throws std::invalid_argument If the PlanetType is not recognized.
    * @note Complexity: O(1).
    */
-  static unique_ptr<BasePlanet<T>> create(PlanetType type) {
+  static std::unique_ptr<BasePlanet<T>> create(PlanetType type) {
     switch (type) {
     case PlanetType::Vector:
-      return make_unique<VectorPlanet<T>>();
+      return std::make_unique<VectorPlanet<T>>();
     case PlanetType::Stack:
-      return make_unique<StackPlanet<T>>();
+      return std::make_unique<StackPlanet<T>>();
     case PlanetType::Queue:
-      return make_unique<QueuePlanet<T>>();
+      return std::make_unique<QueuePlanet<T>>();
     }
-    throw invalid_argument("Unknown PlanetType in factory");
+    throw std::invalid_argument("Unknown PlanetType in factory");
   }
 };
 
 /**
  * @brief Smart Pointer Variety — Future Extension Guide.
  *
- * Current architecture uses unique_ptr<BasePlanet<T>> for exclusive ownership.
+ * Current architecture uses std::unique_ptr<BasePlanet<T>> for exclusive ownership.
  *
  * For inter-planet interactions (e.g., moons orbiting planets):
- * - shared_ptr<BasePlanet<T>>  — multiple owners share a planet
- * - weak_ptr<BasePlanet<T>>    — non-owning observer (breaks circular
+ * - std::shared_ptr<BasePlanet<T>>  — multiple owners share a planet
+ * - std::weak_ptr<BasePlanet<T>>    — non-owning observer (breaks circular
  * references)
  *
  * @code
- *   shared_ptr<BasePlanet<int>> planet = make_shared<VectorPlanet<int>>();
- *   weak_ptr<BasePlanet<int>>   moon_ref = planet;
+ *   std::shared_ptr<BasePlanet<int>> planet = std::make_shared<VectorPlanet<int>>();
+ *   std::weak_ptr<BasePlanet<int>>   moon_ref = planet;
  *   if (auto p = moon_ref.lock()) { p->display(); }
  * @endcode
  */

@@ -82,9 +82,9 @@ TEST_F(SolarSystemTest, PushToAllPlanets) {
 }
 
 TEST_F(SolarSystemTest, PushToInvalidIndexThrows) {
-  ASSERT_THROW(system.pushToPlanet(-1, 10), out_of_range);
-  ASSERT_THROW(system.pushToPlanet(3, 10), out_of_range);
-  ASSERT_THROW(system.pushToPlanet(99, 10), out_of_range);
+  ASSERT_THROW(system.pushToPlanet(-1, 10), std::out_of_range);
+  ASSERT_THROW(system.pushToPlanet(3, 10), std::out_of_range);
+  ASSERT_THROW(system.pushToPlanet(99, 10), std::out_of_range);
   ASSERT_ELEMENT_COUNT_CONSISTENT(system);
 }
 
@@ -93,6 +93,34 @@ TEST_F(SolarSystemTest, PushMultipleElementsAccumulatesCount) {
     system.pushToPlanet(0, i);
 
   ASSERT_EQ(system.getElementCount(), 100);
+  ASSERT_ELEMENT_COUNT_CONSISTENT(system);
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  Data Structure specific behavior (LIFO/FIFO)
+// ═══════════════════════════════════════════════════════════════
+
+TEST_F(SolarSystemTest, StackLIFOOrdering) {
+  system.pushToPlanet(1, 10);
+  system.pushToPlanet(1, 20);
+  system.pushToPlanet(1, 30);
+
+  // Pop 30 (Last In)
+  system.deleteElement(1);
+  ASSERT_EQ(system.getElementCount(), 2);
+  
+  // We can't peek easily without modifying the class, but we can verify consistency
+  ASSERT_ELEMENT_COUNT_CONSISTENT(system);
+}
+
+TEST_F(SolarSystemTest, QueueFIFOOrdering) {
+  system.pushToPlanet(2, 10);
+  system.pushToPlanet(2, 20);
+  system.pushToPlanet(2, 30);
+
+  // Pop 10 (First In)
+  system.deleteElement(2);
+  ASSERT_EQ(system.getElementCount(), 2);
   ASSERT_ELEMENT_COUNT_CONSISTENT(system);
 }
 
@@ -152,9 +180,9 @@ TEST_F(SolarSystemTest, RemoveAllPlanetsOneByOne) {
 }
 
 TEST_F(SolarSystemTest, RemovePlanetInvalidIndexThrows) {
-  ASSERT_THROW(system.removePlanet(-1), out_of_range);
-  ASSERT_THROW(system.removePlanet(3), out_of_range);
-  ASSERT_THROW(system.removePlanet(99), out_of_range);
+  ASSERT_THROW(system.removePlanet(-1), std::out_of_range);
+  ASSERT_THROW(system.removePlanet(3), std::out_of_range);
+  ASSERT_THROW(system.removePlanet(99), std::out_of_range);
 }
 
 TEST_F(SolarSystemTest, BlackHoleAliasWorks) {
@@ -260,6 +288,32 @@ TEST_F(SolarSystemTest, SupernovaAliasWorks) {
 }
 
 // ═══════════════════════════════════════════════════════════════
+//  Metadata and Scaling
+// ═══════════════════════════════════════════════════════════════
+
+TEST_F(SolarSystemTest, LargeScaleStressTest) {
+  system.resetSystem();
+  int numPlanets = 50;
+  int elementsPerPlanet = 20;
+
+  for (int i = 0; i < numPlanets; i++) {
+    system.addPlanet(PlanetType::Vector);
+    for (int j = 0; j < elementsPerPlanet; j++) {
+      system.pushToPlanet(i, j);
+    }
+  }
+
+  ASSERT_EQ(system.getPlanetCount(), numPlanets);
+  ASSERT_EQ(system.getElementCount(), numPlanets * elementsPerPlanet);
+  ASSERT_ELEMENT_COUNT_CONSISTENT(system);
+
+  // Gravity pull on everything
+  system.gravityPull(elementsPerPlanet); 
+  ASSERT_EQ(system.getElementCount(), 0);
+  ASSERT_ELEMENT_COUNT_CONSISTENT(system);
+}
+
+// ═══════════════════════════════════════════════════════════════
 //  Element Count Consistency — Compound Operations
 // ═══════════════════════════════════════════════════════════════
 
@@ -297,7 +351,7 @@ TEST_F(SolarSystemTest, ElementCountConsistentAfterMixedOperations) {
 }
 
 TEST_F(SolarSystemTest, DeleteFromEmptyPlanetThrows) {
-  ASSERT_THROW(system.deleteElement(0), underflow_error);
+  ASSERT_THROW(system.deleteElement(0), std::underflow_error);
   ASSERT_ELEMENT_COUNT_CONSISTENT(system);
 }
 

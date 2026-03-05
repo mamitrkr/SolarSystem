@@ -49,17 +49,17 @@ int main() {
     system.resetSystem(); // Supernova: Destroy everything
     system.travelPlanet();
     system.planetCount();
-  } catch (const out_of_range &e) {
-    cerr << "[Out of Range Error] " << e.what() << endl;
+  } catch (const std::out_of_range &e) {
+    std::cerr << "[Out of Range Error] " << e.what() << std::endl;
     return 1;
-  } catch (const underflow_error &e) {
-    cerr << "[Underflow Error] " << e.what() << endl;
+  } catch (const std::underflow_error &e) {
+    std::cerr << "[Underflow Error] " << e.what() << std::endl;
     return 2;
-  } catch (const invalid_argument &e) {
-    cerr << "[Invalid Argument] " << e.what() << endl;
+  } catch (const std::invalid_argument &e) {
+    std::cerr << "[Invalid Argument] " << e.what() << std::endl;
     return 3;
-  } catch (const exception &e) {
-    cerr << "[Unexpected Error] " << e.what() << endl;
+  } catch (const std::exception &e) {
+    std::cerr << "[Unexpected Error] " << e.what() << std::endl;
     return 4;
   }
 

@@ -82,9 +82,9 @@ TEST_F(SolarSystemTest, PushToAllPlanets) {
 }
 
 TEST_F(SolarSystemTest, PushToInvalidIndexThrows) {
-  ASSERT_THROW(system.pushToPlanet(-1, 10), out_of_range);
-  ASSERT_THROW(system.pushToPlanet(3, 10), out_of_range);
-  ASSERT_THROW(system.pushToPlanet(99, 10), out_of_range);
+  ASSERT_THROW(system.pushToPlanet(-1, 10), std::out_of_range);
+  ASSERT_THROW(system.pushToPlanet(3, 10), std::out_of_range);
+  ASSERT_THROW(system.pushToPlanet(99, 10), std::out_of_range);
   ASSERT_ELEMENT_COUNT_CONSISTENT(system);
 }
 
@@ -152,9 +152,9 @@ TEST_F(SolarSystemTest, RemoveAllPlanetsOneByOne) {
 }
 
 TEST_F(SolarSystemTest, RemovePlanetInvalidIndexThrows) {
-  ASSERT_THROW(system.removePlanet(-1), out_of_range);
-  ASSERT_THROW(system.removePlanet(3), out_of_range);
-  ASSERT_THROW(system.removePlanet(99), out_of_range);
+  ASSERT_THROW(system.removePlanet(-1), std::out_of_range);
+  ASSERT_THROW(system.removePlanet(3), std::out_of_range);
+  ASSERT_THROW(system.removePlanet(99), std::out_of_range);
 }
 
 TEST_F(SolarSystemTest, BlackHoleAliasWorks) {
@@ -297,7 +297,7 @@ TEST_F(SolarSystemTest, ElementCountConsistentAfterMixedOperations) {
 }
 
 TEST_F(SolarSystemTest, DeleteFromEmptyPlanetThrows) {
-  ASSERT_THROW(system.deleteElement(0), underflow_error);
+  ASSERT_THROW(system.deleteElement(0), std::underflow_error);
   ASSERT_ELEMENT_COUNT_CONSISTENT(system);
 }
 
